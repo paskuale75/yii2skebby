@@ -1,0 +1,14 @@
+{
+    "name": "paskuale75/yii2-skebby",
+    "description": "send sms with Skebby API",
+    "type": "yii2-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "paskuale",
+            "email": "pellicanipasquale@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
