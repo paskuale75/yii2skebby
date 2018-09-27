@@ -14,6 +14,16 @@
         "psr-4": {
             "paskuale75\\yi2-skebby\\": ""
         }
-    }
-    "require": {}
+    },
+    "require": {
+        "php": ">=7.1.0",
+        "yiisoft/yii2": "~2.0.6"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
+
 }
