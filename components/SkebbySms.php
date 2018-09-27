@@ -180,6 +180,7 @@ class SmsSkebby extends Component{
         } else {
             $this->_return ['result'] = TRUE;
         }
-        return;
+
+        return true;
     }
 }
