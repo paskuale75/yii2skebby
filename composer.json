@@ -1,5 +1,5 @@
 {
-    "name": "paskuale75/yii2-skebby",
+    "name": "paskuale75/yii2skebby",
     "description": "send sms with Skebby API",
     "type": "yii2-extension",
     "license": "MIT",
@@ -12,13 +12,12 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "paskuale75\\yi2-skebby\\": ""
+            "paskuale75\\yii2skebby\\": ""
         }
     },
     "require": {
         "php": ">=7.1.0",
         "yiisoft/yii2": "~2.0.6",
-        "linslin/yii2-curl": "*",
         "ext-curl": "*"
     },
     "repositories": [
