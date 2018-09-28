@@ -38,8 +38,23 @@ class Skebbysms extends Component
     const MESSAGE_MEDIUM__QUALITY = 'TI';
     const MESSAGE_LOW__QUALITY = 'SI';
 
+    const AUTH_BY_TOKEN         = 'token';
+    const AUTH_BY_SESSION_KEY   = 'session';
 
-    public $token;
+
+
+    protected $token;
+    protected $sessionKey;
+    protected $userKey;
+
+
+
+
+
+
+
+    /** can be 'token' OR 'session' type */
+    public $authenticationMethod = self::AUTH_BY_TOKEN;
 
     /** @var mixed Skebby action. */
     public $method = self::TYPE_CLASSIC;
@@ -76,11 +91,20 @@ class Skebbysms extends Component
 
 
     /**
+     * @param mixed $userKey
+     */
+    public function setUserKey($userKey): void
+    {
+        $this->userKey = $userKey;
+    }
+
+
+    /**
      * Authenticates the user given it's username and password.
      * Returns the pair user_key, Session_key
      */
     function getToken() {
-
+        $return = false;
         $optUrl = $this::BASEURL.'token?username='.$this->username.'&password='.$this->password;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $optUrl);
@@ -94,9 +118,85 @@ class Skebbysms extends Component
         }
         else {
             $values = explode(";", $response);
-            echo('user_key: ' . $values[0]);
-            echo('Access_token: ' . $values[1]);
+            //echo('user_key: ' . $values[0]);
+            //echo('Access_token: ' . $values[1]);
+            $this->setUserKey($values[0]);
+            $this->token = $values[1];
         }
+    }
+
+    function getSessionKey(){
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this::BASEURL.'login?username='.$this->username.'&password='.$this->password);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+
+        if ($info['http_code'] != 200) {
+            echo('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+        }
+        else {
+            $values = explode(";", $response);
+            //echo('user_key: ' . $values[0]);
+            //echo('Session_key: ' . $values[1]);
+            $this->setUserKey($values[0]);
+            $this->sessionKey = $values[1];
+        }
+    }
+
+    /**
+     *
+     * @param string money “true” or “false”  add user current money to response
+     * @param string typeAliases “true” or “false”  Returns the actual names for the message types
+     * instead of the internal ID. This is not done by default only because of retrocompatibility issues.
+     *
+     * @return json object representing the user status
+     */
+
+    function getUserStatus($money=false, $typeAliases=false)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, self::BASEURL.'status?getMoney='.$money.'&typeAliases='.$typeAliases);
+        $curlHttpParams = [
+            'Content-type: application/json'
+        ];
+
+        if($this->authenticationMethod == self::AUTH_BY_TOKEN){
+            $this->getToken();
+            $element = 'Access_token:'. $this->token;
+            array_push($curlHttpParams, $element);
+        }else{
+            $this->getSessionKey();
+            $element = 'Session_key:'. $this->sessionKey;
+            array_push($curlHttpParams, $element);
+        }
+
+        if($money){
+            $element = 'getMoney: true';
+            array_push($curlHttpParams, $element);
+        }
+
+        $userKeyElement = 'user_key: '.$this->userKey;
+        array_push($curlHttpParams, $userKeyElement);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $curlHttpParams);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+
+        if ($info['http_code'] != 200) {
+            echo('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+        } else {
+
+            $obj = json_decode($response);
+            VarDumper::dump($obj,10,true);
+        }
+
     }
 
 
