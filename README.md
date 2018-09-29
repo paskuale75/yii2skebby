@@ -7,3 +7,24 @@
 </p>
 
 Send sms with Skebby and Yii2.
+
+
+Installation
+------------
+
+The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
+
+Either run
+
+```sh
+php composer.phar require --prefer-dist paskuale75/yii2skebby "*"
+```
+
+or add
+
+```
+"paskuale75/yii2skebby": "*"
+```
+
+to the require section of your composer.json.
+
