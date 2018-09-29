@@ -28,3 +28,15 @@ or add
 
 to the require section of your composer.json.
 
+**Component Setup**
+
+To use the Setting Component, you need to configure the components array in your application configuration:
+```php
+'components' => [
+    'skebbysms' => [
+                'class'     => \paskuale75\yii2skebby\src\components\Skebbysms::class,
+                'username'  =>'MyUsername',
+                'password'  =>'MyPassword'
+    ],
+],
+```
