@@ -12,7 +12,7 @@ use Yii;
 use yii\base\Component;
 use linslin\yii2\curl;
 use yii\helpers\VarDumper;
-
+use yii\helpers\Json;
 
 /*
  * inspired by https://github.com/YetOpen/YSkebbySms
@@ -53,6 +53,7 @@ class Skebbysms extends Component
 
 
 
+
     /** can be 'token' OR 'session' type */
     public $authenticationMethod = self::AUTH_BY_TOKEN;
 
@@ -78,7 +79,10 @@ class Skebbysms extends Component
     // component level
     /** @var boolean Whether to print debug information on screen. Useful when debugging from shell */
     public $debug = false;
-    protected $_url = "%s://gateway.skebby.it/api/send/smseasy/advanced/http.php";
+    //protected $_url = "%s://gateway.skebby.it/api/send/smseasy/advanced/http.php";
+    protected $_url = "%s://api.skebby.it/API/v1.0/REST/sms";
+
+    protected $_className = 'SkebbyYii2';
     protected $_return;
 
 
@@ -103,7 +107,7 @@ class Skebbysms extends Component
      * Authenticates the user given it's username and password.
      * Returns the pair user_key, Session_key
      */
-    function getToken() {
+    private function getToken() {
         $return = false;
         $optUrl = $this::BASEURL.'token?username='.$this->username.'&password='.$this->password;
         $ch = curl_init();
@@ -125,7 +129,7 @@ class Skebbysms extends Component
         }
     }
 
-    function getSessionKey(){
+    private function getSessionKey(){
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this::BASEURL.'login?username='.$this->username.'&password='.$this->password);
 
@@ -199,7 +203,67 @@ class Skebbysms extends Component
 
     }
 
+    /**
+     * params:
+     * @to is array : A list of recipents phone numbers
+     * @message string
+     */
+    function sendSms($to, $message)
+    {
 
+        $options = [
+            'returnCredits' => true,
+            'recipient'     => $to,
+            'scheduled_delivery_time'   => '',
+            'message'       => $message,
+            'message_type'  => self::MESSAGE_MEDIUM__QUALITY,
+            'sender'        => $this->_className,
+        ];
+
+
+        $optionsJson = Json::encode($options);
+
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, self::BASEURL.'sms');
+        $curlHttpParams = [
+            'Content-type: application/json'
+        ];
+
+        if($this->authenticationMethod == self::AUTH_BY_TOKEN){
+            $this->getToken();
+            $element = 'Access_token:'. $this->token;
+            array_push($curlHttpParams, $element);
+        }else{
+            $this->getSessionKey();
+            $element = 'Session_key:'. $this->sessionKey;
+            array_push($curlHttpParams, $element);
+        }
+
+
+        $userKeyElement = 'user_key: '.$this->userKey;
+
+        array_push($curlHttpParams, $userKeyElement);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $curlHttpParams);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $optionsJson);
+
+
+        $response = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+
+        if ($info['http_code'] != 201)
+        {
+            echo('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
+        }else{
+            $obj = json_decode($response);
+            VarDumper::dump($obj,10,true);
+        }
+
+    }
 
     /**
      * Sends the SMS request to Clickatell gateway.
@@ -212,43 +276,21 @@ class Skebbysms extends Component
             $this->$k = $v;
         }
         $params = [
+            'returnCredits' => true,
             'username' => $this->username,
             'password' => $this->password,
             'method' => ($this->test?self::TEST_PREFIX:'').$this->method,
             'sender_string' => $this->sender_string,
-            'recipients[]' => $this->to, // FIXME
+            'recipients' => [$this->to], // FIXME
             'text' => $this->message,
         ];
+
+        //VarDumper::dump($params,10,true);die();
         // Send the request
         $this->skebbyRequest($params);
         return $this->_return;
     }
-    /**
-     * Get Skebby credit (remaining SMSes)
-     * @param string $type Type of credit to get. If missing returns an array with all available credits
-     * @param array $config A key=>value array to configure the message
-     * @return mixed If successful the number of remainig messages, bool FALSE on faluire
-     */
-    public function getCredit($type = null, $config = null) {
-        // Runtime configuration
-        if ($config != null) {
-            foreach ($config as $k => $v) {
-                $this->$k = $v;
-            }
-        }
-        $params = [
-            'username' => $this->username,
-            'password' => $this->password,
-            'method' => "get_credit",
-        ];
-        // Send the request
-        if ($this->skebbyRequest($params) === false)
-            return false;
-        if ($type == null)
-            return $this->_return;
-        else
-            return $this->_return[$type];
-    }
+
     /**
      * Sends an request to Clickatell HTTP API. Error messages are logged.
      * @param string $method The method used. Common mehtods are send, ping and auth. For more check the Clickatell docs.
@@ -310,7 +352,7 @@ class Skebbysms extends Component
             return;
         }
         parse_str($response,$this->_return);
-        if ($this->_return ['status'] == "failed") {
+        if ($this->_return ['result'] !== "OK") {
             $this->_return ['result'] = false;
         } else {
             $this->_return ['result'] = true;
