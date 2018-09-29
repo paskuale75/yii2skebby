@@ -2,7 +2,8 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
     </a>
-    <a href="http://www.skebby.com">
+    <br>
+    <a href="http://www.skebby.com" target="_blank">
         <img src="https://s3.eu-central-1.amazonaws.com/cdn.skebby.it/system/images/logos/logoSkebby.png">
     </a>
     <h1 align="center">Yii2 Skebby SMS Extension</h1>
@@ -42,4 +43,16 @@ To use the Setting Component, you need to configure the components array in your
                 'password'  =>'MyPassword'
     ],
 ],
+```
+
+Usage:
+---------
+```php
+
+Create an action in your controller...
+
+public function actionTestSkebby(){
+        // User status details
+        Yii::$app->skebbysms->getUserStatus(true, false);
+}
 ```
