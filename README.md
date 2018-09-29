@@ -2,6 +2,9 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
     </a>
+    <a href="http://www.skebby.com">
+        <img src="https://s3.eu-central-1.amazonaws.com/cdn.skebby.it/system/images/logos/logoSkebby.png">
+    </a>
     <h1 align="center">Yii2 Skebby SMS Extension</h1>
     <br>
 </p>
