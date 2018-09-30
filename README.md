@@ -57,7 +57,7 @@ public function actionTestSkebby(){
 
 //then for send a sms
 public function actionTestSkebby(){
-        Yii::$app->skebbysms->sendSms(
+        Yii::$app->skebbysms->send(
             ['+3933445566', '+391234567'],
             'Hi, this is a test!'
         );
