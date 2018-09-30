@@ -48,14 +48,14 @@ Usage:
 ---------
 ```php
 
-Create an action in your controller...
+//Create an action in your controller...
 
 public function actionTestSkebby(){
         // User status details
         Yii::$app->skebbysms->getUserStatus(true, false);
 }
 
-//for send a sms
+//then for send a sms
 public function actionTestSkebby(){
         Yii::$app->skebbysms->sendSms(
             ['+3933445566', '+391234567'],
