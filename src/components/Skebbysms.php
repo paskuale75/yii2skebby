@@ -205,24 +205,22 @@ class Skebbysms extends Component
 
     /**
      * params:
-     * @to is array : A list of recipents phone numbers
+     * @to is array : A list of recipents phone numbers ex.(+3922334455, +3955667788, ...)
      * @message string
+     * @sender (optional) : the sender name
      */
-    function sendSms($to, $message)
+    function sendSms($to, $message, $sender=false)
     {
-
         $options = [
             'returnCredits' => true,
             'recipient'     => $to,
             'scheduled_delivery_time'   => '',
             'message'       => $message,
             'message_type'  => self::MESSAGE_MEDIUM__QUALITY,
-            'sender'        => $this->_className,
+            'sender'        => ($sender)?$sender:$this->_className,
         ];
 
-
-        $optionsJson = Json::encode($options);
-
+        $payload = Json::encode($options);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, self::BASEURL.'sms');
@@ -240,7 +238,6 @@ class Skebbysms extends Component
             array_push($curlHttpParams, $element);
         }
 
-
         $userKeyElement = 'user_key: '.$this->userKey;
 
         array_push($curlHttpParams, $userKeyElement);
@@ -248,7 +245,7 @@ class Skebbysms extends Component
         curl_setopt($ch, CURLOPT_HTTPHEADER, $curlHttpParams);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $optionsJson);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
 
         $response = curl_exec($ch);

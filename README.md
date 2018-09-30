@@ -54,4 +54,12 @@ public function actionTestSkebby(){
         // User status details
         Yii::$app->skebbysms->getUserStatus(true, false);
 }
+
+//for send a sms
+public function actionTestSkebby(){
+        Yii::$app->skebbysms->sendSms(
+            ['+3933445566', '+391234567'],
+            'Hi, this is a test!'
+        );
+}
 ```
