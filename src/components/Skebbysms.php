@@ -82,7 +82,6 @@ class Skebbysms extends Component
     //protected $_url = "%s://gateway.skebby.it/api/send/smseasy/advanced/http.php";
     protected $_url = "%s://api.skebby.it/API/v1.0/REST/sms";
 
-    protected $_className = 'SkebbyYii2';
     protected $_return;
 
 
@@ -207,17 +206,18 @@ class Skebbysms extends Component
      * params:
      * @to is array : A list of recipents phone numbers ex.(+3922334455, +3955667788, ...)
      * @message string
+     * @messageType (high=>'GP', medium=>'TI' , low=>'SI')
      * @sender (optional) : the sender name
      */
-    function sendSms($to, $message, $sender=false)
+    function send($to, $message, $messageType=false, $sender=false)
     {
         $options = [
             'returnCredits' => true,
             'recipient'     => $to,
             'scheduled_delivery_time'   => '',
             'message'       => $message,
-            'message_type'  => self::MESSAGE_MEDIUM__QUALITY,
-            'sender'        => ($sender)?$sender:$this->_className,
+            'message_type'  => ($messageType)?$messageType:self::MESSAGE_MEDIUM__QUALITY,
+            'sender'        => ($sender)?$sender:$this->sender_string,
         ];
 
         $payload = Json::encode($options);
@@ -262,31 +262,7 @@ class Skebbysms extends Component
 
     }
 
-    /**
-     * Sends the SMS request to Clickatell gateway.
-     * @param array $config A key=>value array to configure the message
-     * @return bool Whether the action was successful
-     */
-    public function send($config) {
-        // Runtime configuration
-        foreach ($config as $k => $v) {
-            $this->$k = $v;
-        }
-        $params = [
-            'returnCredits' => true,
-            'username' => $this->username,
-            'password' => $this->password,
-            'method' => ($this->test?self::TEST_PREFIX:'').$this->method,
-            'sender_string' => $this->sender_string,
-            'recipients' => [$this->to], // FIXME
-            'text' => $this->message,
-        ];
 
-        //VarDumper::dump($params,10,true);die();
-        // Send the request
-        $this->skebbyRequest($params);
-        return $this->_return;
-    }
 
     /**
      * Sends an request to Clickatell HTTP API. Error messages are logged.
