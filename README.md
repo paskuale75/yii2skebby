@@ -9,7 +9,7 @@
     <br>
 </p>
 
-Send sms with Skebby and Yii2.
+Send sms with <a href="developers.skebby.it">Skebby</a> and Yii2. 
 
 
 Installation
