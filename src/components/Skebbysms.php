@@ -263,12 +263,7 @@ class Skebbysms extends Component
         $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($info['http_code'] != 201)
-        {
-            echo('Error! http code: ' . $info['http_code'] . ', body message: ' . $response);
-        }else{
-            $obj = json_decode($response);
-        }
+        $obj = json_decode($response);
 
         return $obj;
     }
